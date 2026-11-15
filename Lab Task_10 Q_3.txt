@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""
+utils.py
+Contains helper functions used across the program.
+"""
+
+
+def get_positive_integer(prompt):
+    """Helper function to get a positive whole number from user."""
+    while True:
+        try:
+            value = int(input(prompt))
+            if value <= 0:
+                print("Please enter a positive whole number.")
+            else:
+                return value
+        except ValueError:
+            print("Invalid input. Please enter a valid whole number.")
+
+
+def display_menu():
+    """Display the main menu."""
+    print("\n" + "=" * 40)
+    print(" LIBRARY MANAGEMENT SYSTEM ")
+    print("=" * 40)
+    print("1. Add Book")
+    print("2. View All Books")
+    print("3. Search Book")
+    print("4. Issue Book")
+    print("5. Return Book")
+    print("6. Delete Book")
+    print("7. View Issued Books")
+    print("8. Exit")
+    print("=" * 40)

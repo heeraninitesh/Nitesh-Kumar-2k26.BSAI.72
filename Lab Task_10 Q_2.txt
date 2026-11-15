@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""
+library.py
+Contains the Library class that manages the collection of books.
+"""
+
+from book import Book
+
+
+class Library:
+    """Manages the collection of books and issuing operations."""
+
+    def __init__(self):
+        """Initialize an empty library."""
+        # Store books in a dictionary with book_id as key
+        self.books = {}
+
+    def add_book(self, book_id, title, author, quantity):
+        """Add a new book to the library."""
+        if book_id in self.books:
+            print("Error: A book with this ID already exists!")
+            return False
+
+        new_book = Book(book_id, title, author, quantity)
+        self.books[book_id] = new_book
+        print("Book added successfully!")
+        return True
+
+    def view_all_books(self):
+        """Display all books in the library."""
+        if not self.books:
+            print("No books found in the library.")
+            return
+
+        print("\n" + "=" * 60)
+        print("ALL BOOKS IN LIBRARY")
+        print("=" * 60)
+        for book in self.books.values():
+            print(book)
+        print("=" * 60)
+
+    def search_book(self, keyword):
+        """Search for a book by ID or title."""
+        found = False
+        print("\n" + "-" * 60)
+        print("SEARCH RESULTS")
+        print("-" * 60)
+
+        for book in self.books.values():
+            # Check if keyword matches ID (exact) or title (partial, case-insensitive)
+            if keyword == book.book_id or keyword.lower() in book.title.lower():
+                print(book)
+                found = True
+
+        if not found:
+            print("No book found matching your search.")
+        print("-" * 60)
+
+    def issue_book(self, book_id, student_name):
+        """Issue a book to a student if available."""
+        if book_id not in self.books:
+            print("Error: Book not found!")
+            return False
+
+        book = self.books[book_id]
+
+        if book.available <= 0:
+            print("Error: No copies available for issuing!")
+            return False
+
+        # Record the issue
+        if student_name not in book.issued_to:
+            book.issued_to[student_name] = 0
+        book.issued_to[student_name] += 1
+        book.available -= 1
+
+        print(f"Book issued successfully to {student_name}!")
+        print(f"Available Quantity: {book.available}")
+        return True
+
+    def return_book(self, book_id, student_name):
+        """Process a book return from a student."""
+        if book_id not in self.books:
+            print("Error: Book not found!")
+            return False
+
+        book = self.books[book_id]
+
+        # Check if this student has borrowed this book
+        if student_name not in book.issued_to or book.issued_to[student_name] <= 0:
+            print(f"Error: No record found of this book being issued to {student_name}!")
+            return False
+
+        # Process the return
+        book.issued_to[student_name] -= 1
+        if book.issued_to[student_name] == 0:
+            del book.issued_to[student_name]
+        book.available += 1
+
+        print("Book returned successfully!")
+        print(f"Available Quantity: {book.available}")
+        return True
+
+    def delete_book(self, book_id):
+        """Remove a book from the library if not currently issued."""
+        if book_id not in self.books:
+            print("Error: Book not found!")
+            return False
+
+        book = self.books[book_id]
+
+        # Check if any copies are currently issued
+        total_issued = sum(book.issued_to.values())
+        if total_issued > 0:
+            print(f"Error: Cannot delete book while {total_issued} copy/copies are issued!")
+            return False
+
+        del self.books[book_id]
+        print("Book deleted successfully!")
+        return True
+
+    def view_issued_books(self):
+        """Display all currently issued books and the students holding them."""
+        has_issued = False
+        print("\n" + "=" * 60)
+        print("ISSUED BOOKS")
+        print("=" * 60)
+
+        for book in self.books.values():
+            if book.issued_to:
+                has_issued = True
+                print(f"\nBook: {book.title} (ID: {book.book_id})")
+                for student, count in book.issued_to.items():
+                    print(f"   -> Issued to: {student} (Copies: {count})")
+
+        if not has_issued:
+            print("No books are currently issued.")
+        print("=" * 60)
